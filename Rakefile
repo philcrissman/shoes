@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'rake'
 require 'rake/clean'
-# require_relative 'platform/skel'
 require 'fileutils'
 require 'find'
 require 'yaml'
