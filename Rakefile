@@ -57,10 +57,11 @@ APPARGS = APP['run']
 FLAGS = %w[DEBUG]
 
 BIN = "*.{bundle,jar,o,so,obj,pdb,pch,res,lib,def,exp,exe,ilk}"
-CLEAN.include ["{bin,shoes}/#{BIN}", "req/**/#{BIN}", "dist", "#{NAME}.app"]
+CLEAN.include ["{bin,shoes}/#{BIN}", "req/**/#{BIN}", "dist", "*.app"]
 
 RUBY_SO = Config::CONFIG['RUBY_SO_NAME']
 RUBY_V = Config::CONFIG['ruby_version']
+RUBY_PROGRAM_VERSION = Config::CONFIG['RUBY_PROGRAM_VERSION']
 SHOES_RUBY_ARCH = Config::CONFIG['arch']
 
 if ENV['APP']
@@ -122,13 +123,13 @@ task :build_os => [:build_skel, "dist/#{NAME}"]
 
 task "shoes/version.h" do |t|
   File.open(t.name, 'w') do |f|
-    f << %{#define SHOES_RELEASE_ID #{RELEASE_ID}\n#define SHOES_RELEASE_NAME "#{RELEASE_NAME}"\n#define SHOES_REVISION #{REVISION}\n#define SHOES_BUILD_DATE #{Time.now.strftime("%Y%m%d")}\n#define SHOES_PLATFORM "#{RUBY_PLATFORM}"\n}
+    f << %{#define SHOES_RELEASE_ID #{RELEASE_ID}\n#define SHOES_RELEASE_NAME "#{RELEASE_NAME}"\n#define SHOES_REVISION #{REVISION}\n#define SHOES_BUILD_DATE #{Time.now.strftime("%Y%m%d")}\n#define SHOES_PLATFORM "#{SHOES_RUBY_ARCH}"\n}
   end
 end
 
 task "dist/VERSION.txt" do |t|
   File.open(t.name, 'w') do |f|
-    f << %{shoes #{RELEASE_NAME.downcase} (0.r#{REVISION}) [#{RUBY_PLATFORM} Ruby#{RUBY_V}]}
+    f << %{shoes #{RELEASE_NAME.downcase} (0.r#{REVISION}) [#{SHOES_RUBY_ARCH} Ruby#{RUBY_PROGRAM_VERSION}]}
     %w[DEBUG].each { |x| f << " +#{x.downcase}" if ENV[x] }
     f << "\n"
   end
@@ -289,7 +290,7 @@ namespace :osx do
         FileList[rdir].each { |rlib| cp_r rlib, "dist/ruby/lib" }
       end
       %w[req/binject/ext/binject_c req/ftsearch/ext/ftsearchrt req/bloopsaphone/ext/bloops req/chipmunk/ext/chipmunk].
-        each { |xdir| copy_ext_osx xdir, "dist/ruby/lib/#{RUBY_PLATFORM}" }
+        each { |xdir| copy_ext_osx xdir, "dist/ruby/lib/#{SHOES_RUBY_ARCH}" }
 
       gdir = "dist/ruby/gems/#{RUBY_V}"
       {'hpricot' => 'lib', 'json' => 'lib/json/ext', 'sqlite3' => 'lib'}.each do |gemn, xdir|
